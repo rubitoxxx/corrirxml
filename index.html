@@ -600,6 +600,45 @@
   function onlyDigits(s){ return (s || '').replace(/\D/g, ''); }
   function esc(s){ return s.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+  function prettyPrintXml(xml){
+    const indent = '  ';
+    const holders = [];
+    let src = String(xml || '').replace(/^\uFEFF/, '').trim();
+    src = src
+      .replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, (m) => {
+        holders.push(m);
+        return `<XMLHOLD n="${holders.length - 1}"/>`;
+      })
+      .replace(/<!--[\s\S]*?-->/g, (m) => {
+        holders.push(m);
+        return `<XMLHOLD n="${holders.length - 1}"/>`;
+      });
+
+    src = src.replace(/>\s+</g, '><');
+    const parts = src.replace(/></g, '>\n<').split('\n');
+    let pad = 0;
+    const lines = [];
+
+    parts.forEach((part) => {
+      const line = part.trim();
+      if (!line) return;
+      const isClosing = /^<\//.test(line);
+      const isDeclOrPi = /^<\?/.test(line);
+      const isDoctype = /^<!DOCTYPE/i.test(line);
+      const isComment = /^<!--/.test(line);
+      const isSelfClose = /\/\s*>$/.test(line);
+      const isLeaf = /^<[^!?/][^>]*>.*<\/[^>]+>$/.test(line);
+
+      if (isClosing) pad = Math.max(0, pad - 1);
+      lines.push(indent.repeat(pad) + line);
+      if (!isClosing && !isSelfClose && !isDeclOrPi && !isDoctype && !isComment && !isLeaf && /^</.test(line)){
+        pad += 1;
+      }
+    });
+
+    return lines.join('\n').replace(/<XMLHOLD n="(\d+)"\/>/g, (_, i) => holders[Number(i)]) + '\n';
+  }
+
   function formatBytes(n){
     if (n < 1024) return n + ' caracteres';
     return (n / 1024).toFixed(1).replace('.', ',') + ' mil caracteres';
@@ -724,7 +763,7 @@
 
     const nfRefBlock = uniqueChaves.map(chave => `<NFref><refNFe>${chave}</refNFe></NFref>`).join('');
     correctedXml = correctedXml.replace(/<\/ide>/, nfRefBlock + '</ide>');
-    correctedXml = correctedXml.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+    correctedXml = prettyPrintXml(correctedXml);
 
     render({ fixes, correctedXml, uniqueChaves, nfRefBlock, alreadyOk: false });
     openResults();
@@ -763,13 +802,14 @@
     let diffHtml = '';
     let delay = 0;
     fixes.forEach(fix => {
-      diffHtml += `<div class="diff-line rm" style="animation-delay:${delay}ms"><span class="gutter">−</span><span>${esc(fix.removeText)}</span></div>`;
+      diffHtml += `<div class="diff-line rm" style="animation-delay:${delay}ms"><span class="gutter">−</span><span>${esc(prettyPrintXml(fix.removeText).trimEnd())}</span></div>`;
       delay += 40;
     });
     diffHtml += `<div class="diff-line note" style="animation-delay:${delay}ms">↳ removido(s) de dentro de &lt;det&gt; e reinserido(s) dentro de &lt;ide&gt;, um por chave única:</div>`;
     delay += 40;
     uniqueChaves.forEach(chave => {
-      diffHtml += `<div class="diff-line add" style="animation-delay:${delay}ms"><span class="gutter">+</span><span>${esc('<NFref><refNFe>' + chave + '</refNFe></NFref>')}</span></div>`;
+      const added = prettyPrintXml(`<NFref><refNFe>${chave}</refNFe></NFref>`).trimEnd();
+      diffHtml += `<div class="diff-line add" style="animation-delay:${delay}ms"><span class="gutter">+</span><span>${esc(added)}</span></div>`;
       delay += 40;
     });
     els.diffBody.innerHTML = diffHtml;
@@ -778,14 +818,14 @@
     els.fullXmlHint.textContent = 'Já com a referência movida para dentro de <ide> — copie e cole no lugar do arquivo original.';
 
     copyPayload = {
-      removed: fixes.map(f => f.removeText).join('\n'),
-      added: uniqueChaves.map(chave => `<NFref><refNFe>${chave}</refNFe></NFref>`).join('\n'),
+      removed: fixes.map(f => prettyPrintXml(f.removeText).trimEnd()).join('\n\n'),
+      added: uniqueChaves.map(chave => prettyPrintXml(`<NFref><refNFe>${chave}</refNFe></NFref>`).trimEnd()).join('\n\n'),
       full: correctedXml
     };
 
     els.stepsList.innerHTML = [
       {t:'Substitua o XML pelo corrigido', s:'Copie o XML completo do painel acima e salve no lugar do arquivo original (mesmo nome, extensão .xml).'},
-      {t:'Reenvie a nota', s:'No Explorador do Windows, digite \\\\192.168.102.50 — abra a pasta integracao, escolha a pasta da filial e depois a pasta nfe ,pasta processar. Cole o XML corrigido dentro de processar.'},
+      {t:'Reenvie a nota', s:'No Explorador do Windows, digite \\\\192.168.102.50 — abra a pasta integracao, escolha a pasta da filial e depois a pasta processar. Cole o XML corrigido dentro de processar.'},
       {t:'Confira no eDocs', s:'Depois de colar o arquivo, busque a nota no eDocs para confirmar o reenvio.'},
     ].map(st => `<li><div class="step-text"><strong>${st.t}</strong><span>${st.s}</span></div></li>`).join('');
   }
