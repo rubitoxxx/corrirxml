@@ -479,9 +479,78 @@
     .error-msg.show{ animation: none; }
     .spinner{ display: none !important; }
   }
+
+  /* Intro de abertura inspirado em logos animados: minimalista, rápido e elegante */
+  #intro-loader{
+    position:fixed; inset:0; z-index:9999;
+    display:grid; place-items:center;
+    background:var(--bg);
+    overflow:hidden;
+    transition:opacity .7s var(--ease), visibility .7s;
+  }
+  #intro-loader::before{
+    content:""; position:absolute; width:42vmax; height:42vmax;
+    border:1px solid rgba(126,184,168,.12); border-radius:50%;
+    animation:introPulse 1.8s var(--ease) infinite;
+  }
+  .intro-logo{
+    position:relative; display:flex; align-items:center; gap:14px;
+    opacity:0; transform:translateY(14px) scale(.94);
+    animation:introLogoIn .8s .12s var(--ease) forwards;
+  }
+  .intro-mark{
+    width:52px;height:52px;border:2px solid var(--accent);border-radius:50%;
+    display:grid;place-items:center;position:relative;
+    box-shadow:0 0 0 0 rgba(126,184,168,.2);
+    animation:introMark .9s .35s var(--ease) forwards;
+  }
+  .intro-mark::after{
+    content:""; width:18px;height:18px;border-radius:50%;
+    background:var(--accent); transform:scale(0);
+    animation:introDot .55s .7s var(--ease) forwards;
+  }
+  .intro-name{
+    font-family:var(--serif); font-size:26px; font-weight:700;
+    letter-spacing:-.03em; color:var(--ink);
+  }
+  .intro-name span{color:var(--accent)}
+  #intro-loader.hide{opacity:0;visibility:hidden;pointer-events:none}
+  body.intro-ready .wrap{animation:pageIn .8s .05s var(--ease) both}
+  body.intro-ready .masthead .kicker,
+  body.intro-ready .masthead h1,
+  body.intro-ready .masthead p,
+  body.intro-ready .panel{
+    animation:contentIn .65s var(--ease) both;
+  }
+  body.intro-ready .masthead h1{animation-delay:.12s}
+  body.intro-ready .masthead p{animation-delay:.2s}
+  body.intro-ready .panel{animation-delay:.28s}
+  @keyframes introLogoIn{to{opacity:1;transform:none}}
+  @keyframes introMark{to{box-shadow:0 0 0 12px rgba(126,184,168,0)}}
+  @keyframes introDot{to{transform:scale(1)}}
+  @keyframes introPulse{0%{transform:scale(.7);opacity:0}40%{opacity:1}100%{transform:scale(1.15);opacity:0}}
+  @keyframes pageIn{from{opacity:0}to{opacity:1}}
+  @keyframes contentIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){
+    #intro-loader{display:none}
+    body.intro-ready .wrap,
+    body.intro-ready .masthead .kicker,
+    body.intro-ready .masthead h1,
+    body.intro-ready .masthead p,
+    body.intro-ready .panel{animation:none}
+  }
+
 </style>
 </head>
 <body>
+
+<div id="intro-loader" aria-label="Carregando ferramenta">
+  <div class="intro-logo">
+    <div class="intro-mark" aria-hidden="true"></div>
+    <div class="intro-name">XML <span>Corretor</span></div>
+  </div>
+</div>
+
 
 <div class="wrap">
   <header class="masthead">
@@ -596,6 +665,18 @@
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const processDelay = reduceMotion ? 0 : 280;
+
+  // Abertura animada: executa uma vez por carregamento e não interfere na ferramenta.
+  const intro = document.getElementById('intro-loader');
+  if (intro && !reduceMotion) {
+    document.body.classList.add('intro-ready');
+    setTimeout(() => intro.classList.add('hide'), 1550);
+    setTimeout(() => intro.remove(), 2250);
+  } else if (intro) {
+    intro.remove();
+    document.body.classList.add('intro-ready');
+  }
+
 
   function onlyDigits(s){ return (s || '').replace(/\D/g, ''); }
   function esc(s){ return s.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
