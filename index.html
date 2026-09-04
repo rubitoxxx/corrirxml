@@ -3,394 +3,577 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Corretor de XML — Rejeição 1194 (remover / adicionar)</title>
+<title>Corretor de XML — DFeReferenciado → NFref</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap');
 
   :root{
-    --ink: #17222b;
-    --ink-soft: #3d4c58;
-    --paper: #eef1ec;
-    --paper-panel: #ffffff;
-    --line: #c9d0c8;
-    --teal: #2c5f6f;
-    --teal-deep: #1c414d;
-    --ok: #33604a;
-    --ok-bg: #e3efe6;
-    --bad: #8a2f24;
-    --bad-bg: #f6e6e2;
-    --stamp: #b5482f;
-    --rm-bg: #3a1414;
-    --rm-line: #ffb4a3;
-    --rm-strike: #ff9c86;
-    --add-bg: #10301f;
-    --add-line: #a7f0c4;
+    --bg: #12181c;
+    --bg-elev: #1a2228;
+    --bg-inset: #0e1418;
+    --ink: #e8eee8;
+    --ink-mute: #9aa8a2;
+    --line: #2a353c;
+    --line-soft: #243038;
+    --accent: #7eb8a8;
+    --accent-deep: #3d7a6e;
+    --stamp: #e08a6a;
+    --ok: #7dcb9a;
+    --ok-dim: rgba(125, 203, 154, .12);
+    --bad: #f0a090;
+    --bad-dim: rgba(240, 160, 144, .12);
+    --rm-bg: #3a1816;
+    --rm-fg: #ffb4a3;
+    --add-bg: #12301f;
+    --add-fg: #a7f0c4;
+    --shadow: 0 18px 50px rgba(0,0,0,.28);
+    --ease: cubic-bezier(.22, 1, .36, 1);
     --mono: 'IBM Plex Mono', ui-monospace, monospace;
     --serif: 'Source Serif 4', Georgia, serif;
+    --radius: 10px;
   }
 
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
+  *{ box-sizing: border-box; }
+  html, body{ margin: 0; padding: 0; }
+  html{ color-scheme: dark; }
   body{
-    background:var(--paper);
-    color:var(--ink);
-    font-family:var(--mono);
-    font-size:15px;
-    line-height:1.55;
-    padding:0 0 80px;
+    background:
+      radial-gradient(1200px 500px at 10% -10%, rgba(126,184,168,.08), transparent 50%),
+      radial-gradient(800px 400px at 100% 0%, rgba(224,138,106,.06), transparent 45%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 15px;
+    line-height: 1.55;
+    min-height: 100vh;
   }
 
-  .wrap{max-width:960px; margin:0 auto; padding:0 24px;}
+  .wrap{
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 22px 72px;
+  }
 
   header.masthead{
-    border-bottom:3px solid var(--ink);
-    padding:36px 0 22px;
-    margin-bottom:34px;
+    padding: 40px 0 28px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 28px;
   }
-  header.masthead .kicker{
-    font-size:12.5px;
-    color:var(--stamp);
-    display:flex;
-    gap:10px;
-    align-items:center;
-    margin-bottom:10px;
+  .kicker{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    font-size: 12px;
+    color: var(--stamp);
+    margin-bottom: 12px;
+    letter-spacing: .02em;
   }
-  header.masthead .kicker .code{
-    border:1.5px solid var(--stamp);
-    padding:1px 7px;
-    border-radius:3px;
-    font-weight:600;
+  .kicker .code{
+    border: 1px solid color-mix(in srgb, var(--stamp) 55%, transparent);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 600;
   }
   header.masthead h1{
-    font-family:var(--serif);
-    font-weight:700;
-    font-size:clamp(26px,4vw,38px);
-    margin:0 0 10px;
-    letter-spacing:-.01em;
-    max-width:20ch;
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: clamp(28px, 4.4vw, 44px);
+    line-height: 1.12;
+    letter-spacing: -.02em;
+    margin: 0 0 12px;
+    max-width: 18ch;
   }
   header.masthead p{
-    font-family:var(--serif);
-    font-size:17px;
-    color:var(--ink-soft);
-    max-width:64ch;
-    margin:0;
+    font-family: var(--serif);
+    font-size: clamp(16px, 2vw, 18.5px);
+    color: var(--ink-mute);
+    max-width: 68ch;
+    margin: 0;
   }
+  header.masthead strong{ color: var(--ink); font-weight: 600; }
 
   .panel{
-    background:var(--paper-panel);
-    border:1px solid var(--line);
-    border-radius:2px;
-    padding:26px 28px;
-    margin-bottom:22px;
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 24px 24px;
+    box-shadow: var(--shadow);
   }
   .panel h2{
-    font-family:var(--serif);
-    font-size:19px;
-    font-weight:700;
-    margin:0 0 4px;
+    font-family: var(--serif);
+    font-size: 21px;
+    font-weight: 700;
+    margin: 0 0 4px;
   }
-  .panel .hint{
-    color:var(--ink-soft);
-    font-size:13px;
-    margin:0 0 16px;
+  .hint{
+    color: var(--ink-mute);
+    font-size: 13px;
+    margin: 0 0 16px;
   }
 
-  label.field-label{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    font-size:12.5px;
-    color:var(--ink-soft);
-    margin-bottom:6px;
+  .field-label{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--ink-mute);
+    margin-bottom: 8px;
   }
-  label.field-label .req{color:var(--stamp);}
-  label.field-label .opt{color:var(--ink-soft); font-style:italic;}
+  .req{ color: var(--stamp); }
+  .meta{ color: var(--ink-mute); opacity: .85; }
 
   textarea{
-    width:100%;
-    min-height:140px;
-    resize:vertical;
-    background:#fbfbf9;
-    border:1px solid var(--line);
-    border-radius:2px;
-    padding:12px 14px;
-    font-family:var(--mono);
-    font-size:12.5px;
-    color:var(--ink);
-    line-height:1.5;
+    width: 100%;
+    min-height: 240px;
+    max-height: min(52vh, 520px);
+    resize: vertical;
+    background: var(--bg-inset);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink);
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    transition: border-color .22s var(--ease), box-shadow .22s var(--ease), background .22s var(--ease);
   }
-  textarea:focus{outline:2px solid var(--teal); outline-offset:1px;}
-  .field-row{margin-bottom:18px;}
+  textarea:hover{ border-color: #3a4850; }
+  textarea:focus{
+    outline: none;
+    border-color: var(--accent-deep);
+    box-shadow: 0 0 0 3px rgba(126,184,168,.18);
+  }
+  textarea.flash-clear{
+    animation: pulseBorder .45s var(--ease);
+  }
 
-  .actions{display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
+  .actions{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+
+  button{
+    font-family: var(--mono);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background .2s var(--ease), border-color .2s var(--ease), color .2s var(--ease), transform .2s var(--ease), box-shadow .2s var(--ease);
+  }
+  button:focus-visible{
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  button:active:not(:disabled){ transform: translateY(1px); }
 
   button.primary{
-    background:var(--ink);
-    color:#fff;
-    border:none;
-    padding:12px 22px;
-    font-family:var(--mono);
-    font-weight:600;
-    font-size:13.5px;
-    border-radius:2px;
-    cursor:pointer;
+    background: var(--ink);
+    color: #12181c;
+    border: none;
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 13.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
   }
-  button.primary:hover{background:var(--teal-deep);}
+  button.primary:hover:not(:disabled){
+    background: var(--accent);
+    box-shadow: 0 8px 24px rgba(126,184,168,.18);
+  }
+  button.primary:disabled{ opacity: .72; cursor: wait; }
 
   button.secondary{
-    background:transparent;
-    color:var(--teal-deep);
-    border:1px solid var(--line);
-    padding:11px 18px;
-    font-family:var(--mono);
-    font-size:13px;
-    border-radius:2px;
-    cursor:pointer;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 11px 16px;
+    font-size: 13px;
+    min-height: 44px;
   }
-  button.secondary:hover{border-color:var(--teal-deep);}
-
-  button.tiny{
-    font-size:11.5px;
-    padding:6px 12px;
-    background:transparent;
-    border:1px solid rgba(255,255,255,.25);
-    color:inherit;
-    border-radius:2px;
-    cursor:pointer;
+  button.secondary:hover{
+    border-color: var(--accent);
+    color: var(--accent);
   }
-  button.tiny:hover{border-color:rgba(255,255,255,.6);}
+  button.ghost{
+    background: transparent;
+    color: var(--ink-mute);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+  button.ghost:hover{ color: var(--ink); border-color: #4a5a62; }
+  button.copied{
+    color: var(--ok) !important;
+    border-color: color-mix(in srgb, var(--ok) 50%, transparent) !important;
+  }
 
-  .error-msg{color:var(--bad); font-size:13px; margin-top:10px; display:none;}
+  .spinner{
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(18,24,28,.25);
+    border-top-color: #12181c;
+    border-radius: 50%;
+    display: none;
+    animation: spin .55s linear infinite;
+  }
+  button.is-busy .spinner{ display: inline-block; }
+  button.is-busy .btn-label{ opacity: .7; }
 
-  #results{display:none;}
+  .error-msg{
+    color: var(--bad);
+    font-size: 13px;
+    margin: 12px 0 0;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-4px);
+    transition: max-height .28s var(--ease), opacity .22s ease-out, transform .22s var(--ease);
+  }
+  .error-msg.show{
+    max-height: 120px;
+    opacity: 1;
+    transform: none;
+    animation: shake .32s var(--ease);
+  }
+
+  .toast{
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%) translateY(12px);
+    background: #243038;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 20;
+    transition: opacity .22s ease-out, transform .22s var(--ease);
+  }
+  .toast.show{
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  #results{
+    margin-top: 22px;
+    display: none;
+  }
+  #results.open{ display: block; }
+
+  .reveal{
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .36s var(--ease), transform .36s var(--ease);
+  }
+  .reveal.visible{
+    opacity: 1;
+    transform: none;
+  }
 
   .verdict{
-    border-radius:2px;
-    padding:20px 24px;
-    margin-bottom:22px;
-    display:flex;
-    gap:16px;
-    align-items:flex-start;
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    border: 1px solid var(--line);
   }
-  .verdict.bad{background:var(--bad-bg); border:1px solid #d8b6ac;}
-  .verdict.ok{background:var(--ok-bg); border:1px solid #b6d0bf;}
-  .verdict .mark{font-family:var(--serif); font-weight:700; font-size:26px; line-height:1; padding-top:2px;}
-  .verdict.bad .mark{color:var(--bad);}
-  .verdict.ok .mark{color:var(--ok);}
-  .verdict .text h3{margin:0 0 6px; font-family:var(--serif); font-size:18px;}
-  .verdict .text p{margin:0; font-size:13.5px; color:var(--ink-soft);}
+  .verdict.bad{ background: var(--bad-dim); border-color: color-mix(in srgb, var(--bad) 28%, var(--line)); }
+  .verdict.ok{ background: var(--ok-dim); border-color: color-mix(in srgb, var(--ok) 28%, var(--line)); }
+  .verdict .mark{
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .verdict.bad .mark{ background: rgba(240,160,144,.16); color: var(--bad); }
+  .verdict.ok .mark{ background: rgba(125,203,154,.16); color: var(--ok); }
+  .verdict .text h3{
+    margin: 2px 0 6px;
+    font-family: var(--serif);
+    font-size: 18px;
+  }
+  .verdict .text p{ margin: 0; font-size: 13.5px; color: var(--ink-mute); }
 
-  /* ---------- diff ---------- */
-  .diff-wrap{
-    background:#0f1614;
-    border-radius:3px;
-    overflow:hidden;
-    margin-top:6px;
+  .result-grid{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
-  .diff-file-tag{
-    padding:10px 16px;
-    font-size:11.5px;
-    color:#9fb0a8;
-    border-bottom:1px solid #1f2b27;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+  @media (min-width: 980px){
+    .result-grid.has-both{ grid-template-columns: 1fr 1fr; }
+    .result-grid.has-both .panel{ min-width: 0; }
   }
-  .diff-body{padding:6px 0;}
-  .diff-line{
-    display:flex;
-    font-size:12.5px;
-    padding:2px 16px;
-    white-space:pre-wrap;
-    word-break:break-word;
-  }
-  .diff-line .gutter{
-    width:18px;
-    flex-shrink:0;
-    color:#5b6b64;
-    user-select:none;
-  }
-  .diff-line.rm{background:var(--rm-bg); color:var(--rm-line);}
-  .diff-line.rm .gutter{color:var(--rm-strike);}
-  .diff-line.add{background:var(--add-bg); color:var(--add-line);}
-  .diff-line.add .gutter{color:var(--add-line);}
-  .diff-line.eq{color:#8fa39a;}
-  .diff-line.eq .gutter{color:#4c5b54;}
-  .diff-line.note{color:#e0b27a; font-style:italic; padding-top:6px; padding-bottom:6px;}
 
   .legend{
-    display:flex; gap:20px; margin:14px 0 4px; font-size:12px; color:var(--ink-soft);
+    display: flex;
+    gap: 18px;
+    margin: 0 0 12px;
+    font-size: 12px;
+    color: var(--ink-mute);
   }
-  .legend span{display:inline-flex; align-items:center; gap:6px;}
-  .swatch{width:12px; height:12px; border-radius:2px; display:inline-block;}
-  .swatch.rm{background:#ff9c86;}
-  .swatch.add{background:#a7f0c4;}
+  .legend span{ display: inline-flex; align-items: center; gap: 7px; }
+  .swatch{ width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .swatch.rm{ background: var(--rm-fg); }
+  .swatch.add{ background: var(--add-fg); }
 
-  .copy-panels{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px;}
-  @media (max-width:700px){.copy-panels{grid-template-columns:1fr;}}
-  .copy-panel h3{
-    font-size:12.5px;
-    text-transform:uppercase;
-    letter-spacing:.03em;
-    margin:0 0 8px;
-    display:flex;
-    align-items:center;
-    gap:8px;
+  .diff-wrap{
+    background: var(--bg-inset);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--line-soft);
   }
-  .copy-panel.rm h3{color:var(--bad);}
-  .copy-panel.add h3{color:var(--ok);}
-  .copy-panel .box{
-    background:#12211f;
-    color:#dfeee6;
-    padding:14px 16px;
-    border-radius:2px;
-    font-size:11.5px;
-    line-height:1.6;
-    overflow-x:auto;
-    white-space:pre-wrap;
-    word-break:break-word;
-    max-height:260px;
-    overflow-y:auto;
+  .diff-file-tag{
+    padding: 10px 14px;
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    border-bottom: 1px solid var(--line-soft);
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
   }
-  .copy-panel.rm .box{border-left:3px solid var(--bad);}
-  .copy-panel.add .box{border-left:3px solid var(--ok);}
-  .copy-panel .copy-row{display:flex; justify-content:flex-end; margin-top:8px;}
-  .copy-panel .copy-row button{font-size:11px; padding:6px 12px;}
-
-  .note{
-    font-size:12.5px;
-    color:var(--ink-soft);
-    background:#f2f0e8;
-    border-left:3px solid var(--stamp);
-    padding:10px 14px;
-    margin-top:16px;
+  .diff-body{
+    padding: 6px 0;
+    max-height: min(46vh, 420px);
+    overflow: auto;
+  }
+  .diff-line{
+    display: flex;
+    gap: 8px;
+    font-size: 12.2px;
+    padding: 4px 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    opacity: 0;
+    transform: translateY(6px);
+    animation: lineIn .32s var(--ease) forwards;
+  }
+  .diff-line .gutter{
+    width: 16px;
+    flex-shrink: 0;
+    user-select: none;
+    font-weight: 600;
+  }
+  .diff-line.rm{ background: var(--rm-bg); color: var(--rm-fg); }
+  .diff-line.add{ background: var(--add-bg); color: var(--add-fg); }
+  .diff-line.note{
+    color: #e0b27a;
+    font-style: italic;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .snippet-actions{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
   }
 
-  .field-table{width:100%; border-collapse:collapse; font-size:13px; margin-top:6px;}
-  .field-table th, .field-table td{text-align:left; padding:9px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
-  .field-table th{color:var(--ink-soft); font-weight:500; font-size:11px; text-transform:uppercase; letter-spacing:.03em;}
-  .field-table td.rm{color:var(--bad); text-decoration:line-through; font-size:12.5px;}
-  .field-table td.add{color:var(--ok); font-size:12.5px;}
-  .field-table tr.changed td.tag{font-weight:600;}
+  .copy-head{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .xml-box{
+    background: var(--bg-inset);
+    color: #dfeee6;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: min(52vh, 480px);
+    overflow: auto;
+    border: 1px solid var(--line-soft);
+    border-left: 3px solid var(--ok);
+  }
 
-  .steps{list-style:none; margin:0; padding:0; counter-reset:step;}
-  .steps li{counter-increment:step; display:flex; gap:14px; padding:14px 0; border-top:1px solid var(--line);}
-  .steps li:first-child{border-top:none;}
+  .steps-panel{ margin-top: 16px; }
+  .steps{ list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  .steps li{
+    counter-increment: step;
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+  }
+  .steps li:first-child{ border-top: none; }
   .steps li::before{
-    content:counter(step);
-    font-family:var(--serif); font-weight:700; font-size:14px; color:var(--teal);
-    border:1.5px solid var(--teal); width:26px; height:26px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    content: counter(step);
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--accent);
+    border: 1.5px solid var(--accent-deep);
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
-  .steps li .step-text strong{display:block; margin-bottom:2px; font-size:13.5px;}
-  .steps li .step-text span{font-size:13px; color:var(--ink-soft);}
+  .steps li .step-text strong{ display: block; margin-bottom: 2px; font-size: 13.5px; }
+  .steps li .step-text span{ font-size: 13px; color: var(--ink-mute); }
 
   footer.foot{
-    margin-top:40px; padding-top:18px; border-top:1px solid var(--line);
-    font-size:11.5px; color:var(--ink-soft); text-align:center;
+    margin-top: 36px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    text-align: center;
+  }
+
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+  @keyframes lineIn{
+    to{ opacity: 1; transform: none; }
+  }
+  @keyframes shake{
+    0%, 100%{ transform: translateX(0); }
+    25%{ transform: translateX(-5px); }
+    75%{ transform: translateX(5px); }
+  }
+  @keyframes pulseBorder{
+    0%{ box-shadow: 0 0 0 0 rgba(126,184,168,.0); }
+    40%{ box-shadow: 0 0 0 3px rgba(126,184,168,.28); }
+    100%{ box-shadow: 0 0 0 0 rgba(126,184,168,.0); }
+  }
+
+  @media (max-width: 640px){
+    .wrap{ padding: 0 14px 88px; }
+    header.masthead{ padding: 26px 0 20px; }
+    .panel{ padding: 16px; }
+    textarea{ min-height: 180px; }
+    button.primary, button.secondary{ width: 100%; justify-content: center; }
+    .actions{ flex-direction: column; align-items: stretch; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation: none !important;
+      transition: none !important;
+    }
+    .reveal{ opacity: 1; transform: none; }
+    .diff-line{ opacity: 1; transform: none; }
+    .error-msg.show{ animation: none; }
+    .spinner{ display: none !important; }
   }
 </style>
 </head>
 <body>
 
 <div class="wrap">
-
   <header class="masthead">
-    <div class="kicker"><span class="code">Rejeição 1194</span><span>o que remover · o que adicionar</span></div>
-    <h1>Corretor de XML — diff pronto para editar</h1>
-    <p>Cole o XML rejeitado (e, se tiver, o XML da nota referenciada) e a ferramenta mostra, linha a linha, o que precisa sair do arquivo e o que precisa entrar no lugar — igual a um diff de código. Tudo roda no navegador, nada é enviado a servidores.</p>
+    <div class="kicker">
+      <span class="code">Rejeição 1010 / 1194</span>
+      <span>referência da NF-e no lugar certo</span>
+    </div>
+    <h1>Corretor de XML — DFeReferenciado → NFref</h1>
+    <p>Cole o XML da NF-e rejeitada. A ferramenta encontra os blocos <strong>&lt;DFeReferenciado&gt;</strong> (formato por item, dentro de &lt;det&gt;), remove-os e insere <strong>&lt;NFref&gt;&lt;refNFe&gt;</strong> dentro de <strong>&lt;ide&gt;</strong>. Mostra o diff e o XML completo já corrigido. Tudo roda no navegador — nada é enviado a servidores.</p>
   </header>
 
   <div class="panel">
-    <h2>1. Dados de entrada</h2>
-    <p class="hint">Cole o XML completo. Aceita com ou sem a assinatura digital.</p>
-
-    <div class="field-row">
-      <label class="field-label" for="xmlDevolucao">XML da NF-e rejeitada <span class="req">obrigatório</span></label>
-      <textarea id="xmlDevolucao" placeholder="<NFe>...<dest>...</dest>...<NFref><refNFe>...</refNFe></NFref>...</NFe>"></textarea>
-    </div>
-
-    <div class="field-row">
-      <label class="field-label" for="xmlReferenciada">XML da NF-e referenciada <span class="opt">opcional — preenche nome/endereço/IE automaticamente</span></label>
-      <textarea id="xmlReferenciada" placeholder="Sem esse XML, a ferramenta só sabe o CNPJ correto (decodificado da chave). Com ele, monta o bloco <dest> completo pronto para colar."></textarea>
-    </div>
-
+    <h2>1. Cole o XML</h2>
+    <p class="hint">Aceita com ou sem a assinatura digital, formatado ou em uma linha só.</p>
+    <label class="field-label" for="xmlInput">
+      <span>XML da NF-e rejeitada <span class="req">obrigatório</span></span>
+      <span class="meta" id="xmlMeta">vazio</span>
+    </label>
+    <textarea id="xmlInput" spellcheck="false" placeholder="<NFe>...<ide>...</ide>...<det><DFeReferenciado>...</DFeReferenciado></det>...</NFe>"></textarea>
     <div class="actions">
-      <button class="primary" id="btnAnalisar">Gerar diff de correção</button>
-      <button class="secondary" id="btnLimpar">Limpar</button>
+      <button class="primary" id="btnAnalisar" type="button">
+        <span class="spinner" aria-hidden="true"></span>
+        <span class="btn-label">Gerar XML corrigido</span>
+      </button>
+      <button class="secondary" id="btnLimpar" type="button">Limpar</button>
     </div>
-    <p class="error-msg" id="errorMsg"></p>
+    <p class="error-msg" id="errorMsg" role="alert"></p>
   </div>
 
   <div id="results">
-
-    <div class="verdict" id="verdictBox">
-      <div class="mark" id="verdictMark">✕</div>
+    <div class="verdict reveal" id="verdictBox">
+      <div class="mark" id="verdictMark">✓</div>
       <div class="text">
         <h3 id="verdictTitle"></h3>
         <p id="verdictSub"></p>
       </div>
     </div>
 
-    <div class="panel" id="diffPanel">
-      <h2>2. O que muda no XML</h2>
-      <p class="hint">Vermelho = excluir. Verde = adicionar. Cinza = não muda.</p>
-      <div class="legend">
-        <span><span class="swatch rm"></span>remover</span>
-        <span><span class="swatch add"></span>adicionar</span>
-      </div>
-      <div class="diff-wrap">
-        <div class="diff-file-tag"><span id="diffFileName">infNFe &gt; dest</span><span id="diffCounts"></span></div>
-        <div class="diff-body" id="diffBody"></div>
-      </div>
-
-      <div class="copy-panels">
-        <div class="copy-panel rm">
-          <h3>✕ Excluir do XML (texto exato)</h3>
-          <div class="box" id="removeBox"></div>
-          <div class="copy-row"><button class="secondary" id="btnCopyRemove">Copiar</button></div>
+    <div class="result-grid" id="resultGrid">
+      <div class="panel reveal" id="diffPanel">
+        <h2>2. O que muda</h2>
+        <p class="hint">Vermelho sai de dentro de &lt;det&gt;. Verde entra dentro de &lt;ide&gt;.</p>
+        <div class="legend">
+          <span><span class="swatch rm"></span>remover</span>
+          <span><span class="swatch add"></span>adicionar</span>
         </div>
-        <div class="copy-panel add">
-          <h3>＋ Adicionar no lugar</h3>
-          <div class="box" id="addBox"></div>
-          <div class="copy-row"><button class="secondary" id="btnCopyAdd">Copiar</button></div>
+        <div class="diff-wrap">
+          <div class="diff-file-tag">
+            <span id="diffFileName">det › DFeReferenciado  →  ide › NFref</span>
+            <span id="diffCounts"></span>
+          </div>
+          <div class="diff-body" id="diffBody"></div>
+        </div>
+        <div class="snippet-actions">
+          <button class="ghost" type="button" id="btnCopyRemoved">Copiar removido</button>
+          <button class="ghost" type="button" id="btnCopyAdded">Copiar adicionado</button>
         </div>
       </div>
 
-      <div class="note" id="signatureNote" style="display:none;">
-        O bloco <strong>&lt;Signature&gt;</strong> também precisa ser removido inteiro — ele foi calculado sobre o conteúdo antigo, então continua no arquivo mas fica inválido depois da troca do &lt;dest&gt;. O XML final só fica transmissível depois de passar de novo pelo Agrosys (ou outra ferramenta com o certificado A1 da Copagril) para reassinatura.
+      <div class="panel reveal" id="fullXmlPanel">
+        <h2>3. XML completo corrigido</h2>
+        <p class="hint" id="fullXmlHint">Já com a referência movida para o lugar certo — copie e cole no lugar do arquivo original.</p>
+        <div class="copy-head">
+          <span class="meta">arquivo pronto para colar</span>
+          <button class="ghost" type="button" id="btnCopyFullXml">Copiar XML corrigido</button>
+        </div>
+        <div class="xml-box" id="fullXmlBox"></div>
       </div>
     </div>
 
-    <div class="panel" id="fieldTablePanel" style="display:none;">
-      <h2>3. Campo a campo</h2>
-      <table class="field-table">
-        <thead><tr><th>Tag</th><th>Excluir</th><th>Adicionar</th></tr></thead>
-        <tbody id="fieldTableBody"></tbody>
-      </table>
-    </div>
-
-    <div class="panel">
-      <h2>4. Depois de editar</h2>
+    <div class="panel steps-panel reveal">
+      <h2>4. Depois de corrigir</h2>
       <ol class="steps" id="stepsList"></ol>
     </div>
-
   </div>
 
   <footer class="foot">Ferramenta local — nenhum dado sai do seu navegador. Não substitui a validação oficial do emissor de NF-e.</footer>
 </div>
 
+<div class="toast" id="toast" role="status"></div>
+
 <script>
 (function(){
   const $ = (id) => document.getElementById(id);
   const els = {
-    xmlDevolucao: $('xmlDevolucao'),
-    xmlReferenciada: $('xmlReferenciada'),
+    xmlInput: $('xmlInput'),
+    xmlMeta: $('xmlMeta'),
     btnAnalisar: $('btnAnalisar'),
     btnLimpar: $('btnLimpar'),
     errorMsg: $('errorMsg'),
     results: $('results'),
+    resultGrid: $('resultGrid'),
     verdictBox: $('verdictBox'),
     verdictMark: $('verdictMark'),
     verdictTitle: $('verdictTitle'),
@@ -398,306 +581,256 @@
     diffPanel: $('diffPanel'),
     diffCounts: $('diffCounts'),
     diffBody: $('diffBody'),
-    removeBox: $('removeBox'),
-    addBox: $('addBox'),
-    btnCopyRemove: $('btnCopyRemove'),
-    btnCopyAdd: $('btnCopyAdd'),
-    signatureNote: $('signatureNote'),
-    fieldTablePanel: $('fieldTablePanel'),
-    fieldTableBody: $('fieldTableBody'),
+    fullXmlPanel: $('fullXmlPanel'),
+    fullXmlHint: $('fullXmlHint'),
+    fullXmlBox: $('fullXmlBox'),
+    btnCopyFullXml: $('btnCopyFullXml'),
+    btnCopyRemoved: $('btnCopyRemoved'),
+    btnCopyAdded: $('btnCopyAdded'),
     stepsList: $('stepsList'),
+    toast: $('toast'),
   };
+
+  let copyPayload = { removed: '', added: '', full: '' };
+  let toastTimer = null;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const processDelay = reduceMotion ? 0 : 280;
+
+  function onlyDigits(s){ return (s || '').replace(/\D/g, ''); }
+  function esc(s){ return s.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function formatBytes(n){
+    if (n < 1024) return n + ' caracteres';
+    return (n / 1024).toFixed(1).replace('.', ',') + ' mil caracteres';
+  }
+
+  function updateMeta(){
+    const n = els.xmlInput.value.length;
+    els.xmlMeta.textContent = n ? formatBytes(n) : 'vazio';
+  }
 
   function showError(msg){
     els.errorMsg.textContent = msg;
-    els.errorMsg.style.display = 'block';
-    els.results.style.display = 'none';
+    els.errorMsg.classList.remove('show');
+    void els.errorMsg.offsetWidth;
+    els.errorMsg.classList.add('show');
+    hideResults();
   }
+
   function clearError(){
-    els.errorMsg.style.display = 'none';
+    els.errorMsg.classList.remove('show');
     els.errorMsg.textContent = '';
   }
 
-  function parseXML(str){
-    const doc = new DOMParser().parseFromString(str, 'application/xml');
-    if (doc.querySelector('parsererror')) return null;
-    return doc;
-  }
-  function textOf(doc, tag, root){
-    const scope = root || doc;
-    const el = scope.getElementsByTagName(tag)[0];
-    return el ? el.textContent.trim() : null;
-  }
-  function onlyDigits(s){ return (s || '').replace(/\D/g, ''); }
-  function maskCNPJ(v){ return (v && v.length===14) ? v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5') : v; }
-
-  // ---- chave de acesso ----
-  function decodeChave(chave){
-    const c = onlyDigits(chave);
-    if (c.length !== 44) return null;
-    return {
-      raw:c, cUF:c.slice(0,2), aamm:c.slice(2,6), cnpjEmit:c.slice(6,20),
-      mod:c.slice(20,22), serie:c.slice(22,25), nNF:c.slice(25,34),
-      tpEmis:c.slice(34,35), cNF:c.slice(35,43), dv:c.slice(43,44)
-    };
-  }
-  function findRefChaves(doc){
-    // formato clássico: <ide><NFref><refNFe>...
-    const classic = Array.from(doc.getElementsByTagName('refNFe'))
-      .map(n => onlyDigits(n.textContent));
-    // formato por item (usado em devoluções mais recentes): <det><DFeReferenciado><chaveAcesso>...
-    const perItem = Array.from(doc.getElementsByTagName('DFeReferenciado')).map(dfe => {
-      const chaveEl = dfe.getElementsByTagName('chaveAcesso')[0];
-      const nItemEl = dfe.getElementsByTagName('nItem')[0];
-      return {
-        chave: onlyDigits(chaveEl ? chaveEl.textContent : ''),
-        nItem: nItemEl ? nItemEl.textContent.trim() : null
-      };
-    }).filter(x => x.chave.length === 44);
-
-    if (perItem.length > 0){
-      // dedup by chave, keep nItem info
-      const seen = new Map();
-      perItem.forEach(x => { if (!seen.has(x.chave)) seen.set(x.chave, x.nItem); });
-      return Array.from(seen.entries()).map(([chave, nItem]) => ({chave, nItem}));
-    }
-    return classic.filter(c => c.length === 44).map(chave => ({chave, nItem: null}));
-  }
-  function findDestNode(doc){
-    return doc.getElementsByTagName('dest')[0] || null;
-  }
-  function findEmit(doc){
-    const emitEl = doc.getElementsByTagName('emit')[0];
-    if (!emitEl) return null;
-    const g = (t) => textOf(doc, t, emitEl);
-    const enderEl = emitEl.getElementsByTagName('enderEmit')[0];
-    const ge = (t) => enderEl ? textOf(doc, t, enderEl) : null;
-    return {
-      cnpj: onlyDigits(g('CNPJ') || ''),
-      xNome: g('xNome'),
-      ie: g('IE'),
-      ender: enderEl ? {
-        xLgr: ge('xLgr'), nro: ge('nro'), xCpl: ge('xCpl'), xBairro: ge('xBairro'),
-        cMun: ge('cMun'), xMun: ge('xMun'), UF: ge('UF'), CEP: ge('CEP'),
-        cPais: ge('cPais'), xPais: ge('xPais'), fone: ge('fone')
-      } : null
-    };
+  function hideResults(){
+    els.results.classList.remove('open');
+    els.results.style.display = 'none';
+    els.results.querySelectorAll('.reveal').forEach(el => el.classList.remove('visible'));
   }
 
-  // flatten a DOM subtree into ordered leaf [tag, value] pairs (elements with no child elements)
-  function flattenLeaves(node){
-    const out = [];
-    function walk(el){
-      const childEls = Array.from(el.children);
-      if (childEls.length === 0){
-        out.push({tag: el.tagName, value: (el.textContent || '').trim()});
-      } else {
-        childEls.forEach(walk);
-      }
-    }
-    Array.from(node.children).forEach(walk);
-    return out;
+  function showToast(msg){
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => els.toast.classList.remove('show'), 1600);
   }
 
-  // build synthetic dest-like leaves from emit data
-  function emitToDestLeaves(emit){
-    const leaves = [];
-    if (emit.cnpj) leaves.push({tag:'CNPJ', value: emit.cnpj});
-    if (emit.xNome) leaves.push({tag:'xNome', value: emit.xNome});
-    const e = emit.ender || {};
-    ['xLgr','nro','xCpl','xBairro','cMun','xMun','UF','CEP','cPais','xPais','fone'].forEach(t => {
-      if (e[t]) leaves.push({tag:t, value: e[t]});
+  function flashCopy(btn){
+    const original = btn.textContent;
+    btn.classList.add('copied');
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.textContent = original;
+    }, 1400);
+  }
+
+  function copyText(text, btn){
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      flashCopy(btn);
+      showToast('Copiado para a área de transferência');
     });
-    leaves.push({tag:'indIEDest', value:'1'});
-    if (emit.ie) leaves.push({tag:'IE', value: emit.ie});
-    return leaves;
   }
 
-  // classic LCS-based diff over arrays of {tag,value}
-  function keyOf(l){ return l.tag + '::' + l.value; }
-  function diffLeaves(a, b){
-    const n = a.length, m = b.length;
-    const dp = Array.from({length:n+1}, () => new Array(m+1).fill(0));
-    for (let i=n-1;i>=0;i--){
-      for (let j=m-1;j>=0;j--){
-        dp[i][j] = keyOf(a[i])===keyOf(b[j]) ? dp[i+1][j+1]+1 : Math.max(dp[i+1][j], dp[i][j+1]);
-      }
-    }
-    const ops = [];
-    let i=0,j=0;
-    while (i<n && j<m){
-      if (keyOf(a[i])===keyOf(b[j])){ ops.push({type:'eq', tag:a[i].tag, value:a[i].value}); i++; j++; }
-      else if (dp[i+1][j] >= dp[i][j+1]){ ops.push({type:'rm', tag:a[i].tag, value:a[i].value}); i++; }
-      else { ops.push({type:'add', tag:b[j].tag, value:b[j].value}); j++; }
-    }
-    while (i<n){ ops.push({type:'rm', tag:a[i].tag, value:a[i].value}); i++; }
-    while (j<m){ ops.push({type:'add', tag:b[j].tag, value:b[j].value}); j++; }
-    return ops;
+  function revealCascade(){
+    const panels = [...els.results.querySelectorAll('.reveal')].filter(el => el.style.display !== 'none');
+    panels.forEach((panel, i) => {
+      panel.classList.remove('visible');
+      const delay = reduceMotion ? 0 : 70 + i * 90;
+      setTimeout(() => panel.classList.add('visible'), delay);
+    });
   }
 
-  function leafToLine(l){ return `<${l.tag}>${l.value}</${l.tag}>`; }
+  function openResults(){
+    els.results.style.display = 'block';
+    els.results.classList.add('open');
+    revealCascade();
+    const target = els.verdictBox;
+    setTimeout(() => {
+      target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    }, reduceMotion ? 0 : 80);
+  }
 
   function analisar(){
     clearError();
-    els.results.style.display = 'none';
+    hideResults();
 
-    const rawDevolucao = els.xmlDevolucao.value.trim();
-    if (!rawDevolucao){ showError('Cole o XML rejeitado para gerar o diff.'); return; }
-    const docDevolucao = parseXML(rawDevolucao);
-    if (!docDevolucao){ showError('Não consegui interpretar esse XML. Confira se colou o conteúdo completo.'); return; }
-
-    const refs = findRefChaves(docDevolucao);
-    if (refs.length === 0){ showError('Não encontrei nenhuma nota referenciada (nem <NFref><refNFe>, nem <DFeReferenciado><chaveAcesso>). A regra 1194 depende de uma nota referenciada.'); return; }
-    const dec = decodeChave(refs[0].chave);
-    if (!dec){ showError('A chave de acesso encontrada não tem 44 dígitos válidos.'); return; }
-    const refNItem = refs[0].nItem;
-    const multipleRefs = refs.length > 1;
-
-    const destNode = findDestNode(docDevolucao);
-    if (!destNode){ showError('Não encontrei a tag <dest> nesse XML.'); return; }
-
-    const cnpjDoc = onlyDigits(textOf(docDevolucao,'CNPJ',destNode) || '');
-    const cpfDoc = onlyDigits(textOf(docDevolucao,'CPF',destNode) || '');
-    const destDocAtual = cnpjDoc || cpfDoc;
-    const match = destDocAtual === dec.cnpjEmit;
-
-    let emitRef = null;
-    const rawRef = els.xmlReferenciada.value.trim();
-    if (rawRef){
-      const docRef = parseXML(rawRef);
-      if (docRef) emitRef = findEmit(docRef);
-    }
-
-    const oldLeaves = flattenLeaves(destNode);
-    let newLeaves;
-    let usedFallback = false;
-    if (emitRef && emitRef.cnpj){
-      newLeaves = emitToDestLeaves(emitRef);
-    } else {
-      // fallback: we only know the correct CNPJ, keep the rest as "unknown" placeholders
-      newLeaves = [{tag:'CNPJ', value: dec.cnpjEmit}];
-      usedFallback = true;
-    }
-
-    const hasSignature = docDevolucao.getElementsByTagName('Signature').length > 0;
-
-    render({match, dec, destDocAtual, oldLeaves, newLeaves, usedFallback, hasSignature, rawDevolucao, refNItem, multipleRefs});
-    els.results.style.display = 'block';
-    els.results.scrollIntoView({behavior:'smooth', block:'start'});
-  }
-
-  function render({match, dec, destDocAtual, oldLeaves, newLeaves, usedFallback, hasSignature, rawDevolucao, refNItem, multipleRefs}){
-    els.verdictBox.className = 'verdict ' + (match ? 'ok' : 'bad');
-    els.verdictMark.textContent = match ? '✓' : '✕';
-    const itemTag = refNItem ? ` [nItem:${refNItem}]` : '';
-    if (match){
-      els.verdictTitle.textContent = 'Destinatário já confere com o emitente referenciado';
-      els.verdictSub.textContent = `Não há nada para remover ou adicionar no <dest>${itemTag}. Se a rejeição persistir, o problema está em outro campo ou em outro item referenciado.`;
-    } else {
-      els.verdictTitle.textContent = 'Divergência confirmada — diff gerado abaixo';
-      els.verdictSub.textContent = `O <dest> está com o documento ${destDocAtual}, mas precisa ser ${maskCNPJ(dec.cnpjEmit)} (emitente da nota referenciada${itemTag}).${multipleRefs ? ' Atenção: há mais de uma nota referenciada nesta NF-e — confira as demais também.' : ''}`;
-    }
-
-    if (match){
-      els.diffPanel.style.display = 'none';
-      els.fieldTablePanel.style.display = 'none';
-      els.stepsList.innerHTML = `<li><div class="step-text"><strong>Nada a corrigir no destinatário</strong><span>Revise outros campos citados na rejeição, se houver, ou confirme se há mais de um documento referenciado.</span></div></li>`;
+    const raw = els.xmlInput.value.trim();
+    if (!raw){ showError('Cole o XML para gerar a correção.'); return; }
+    if (!/<NFe[\s>]/.test(raw) && !/<infNFe[\s>]/.test(raw)){
+      showError('Não encontrei uma tag <NFe> ou <infNFe> nesse texto. Confira se colou o XML completo.');
       return;
     }
-    els.diffPanel.style.display = 'block';
-
-    const ops = diffLeaves(oldLeaves, newLeaves);
-    const rmCount = ops.filter(o => o.type==='rm').length;
-    const addCount = ops.filter(o => o.type==='add').length;
-    els.diffCounts.textContent = `−${rmCount + (hasSignature?1:0)}  +${addCount}`;
-
-    let diffHtml = ops.map(op => {
-      const sign = op.type==='rm' ? '−' : op.type==='add' ? '+' : ' ';
-      const cls = op.type==='rm' ? 'rm' : op.type==='add' ? 'add' : 'eq';
-      return `<div class="diff-line ${cls}"><span class="gutter">${sign}</span><span>${leafToLine(op).replace(/</g,'&lt;').replace(/>/g,'&gt;')}</span></div>`;
-    }).join('');
-
-    if (usedFallback){
-      diffHtml += `<div class="diff-line note">↳ nome, endereço e IE não puderam ser preenchidos automaticamente — cole o XML da nota referenciada no campo acima para completar esse bloco.</div>`;
+    if (!/<ide>[\s\S]*<\/ide>/.test(raw)){
+      showError('Não encontrei o bloco <ide>...</ide> nesse XML — ele é necessário para inserir a referência no lugar certo.');
+      return;
     }
 
-    if (hasSignature){
-      diffHtml += `<div class="diff-line rm"><span class="gutter">−</span><span>&lt;Signature&gt; ... &lt;/Signature&gt;  (bloco inteiro, assinatura antiga)</span></div>`;
+    const dfeMatches = raw.match(/<DFeReferenciado>[\s\S]*?<\/DFeReferenciado>/g) || [];
+
+    if (dfeMatches.length === 0){
+      const jaTemNFref = /<NFref>[\s\S]*?<\/NFref>/.test(raw);
+      render({ fixes: [], correctedXml: raw, alreadyOk: jaTemNFref });
+      openResults();
+      return;
     }
 
-    els.diffBody.innerHTML = diffHtml;
-    els.signatureNote.style.display = hasSignature ? 'block' : 'none';
-
-    // exact-text copy panels
-    const destMatch = rawDevolucao.match(/<dest>[\s\S]*?<\/dest>/);
-    const sigMatch = rawDevolucao.match(/<Signature[\s\S]*?<\/Signature>/);
-    let removeText = destMatch ? destMatch[0] : '(bloco <dest> não localizado no texto colado)';
-    if (sigMatch) removeText += '\n\n' + sigMatch[0];
-    els.removeBox.textContent = removeText;
-
-    const addText = '<dest>' + newLeavesToXml(newLeaves) + '</dest>';
-    els.addBox.textContent = addText;
-
-    // field table
-    els.fieldTablePanel.style.display = 'block';
-    const tableOps = ops.filter(o => o.type !== 'eq');
-    // pair rm/add by tag when possible for a "changed" view, else list separately
-    const rmByTag = {}; ops.filter(o=>o.type==='rm').forEach(o => { rmByTag[o.tag] = rmByTag[o.tag]||[]; rmByTag[o.tag].push(o.value); });
-    const addByTag = {}; ops.filter(o=>o.type==='add').forEach(o => { addByTag[o.tag] = addByTag[o.tag]||[]; addByTag[o.tag].push(o.value); });
-    const allTags = Array.from(new Set([...Object.keys(rmByTag), ...Object.keys(addByTag)]));
-    els.fieldTableBody.innerHTML = allTags.map(tag => {
-      const rmv = (rmByTag[tag]||[]).join(', ') || '—';
-      const adv = (addByTag[tag]||[]).join(', ') || '—';
-      return `<tr class="changed"><td class="tag">&lt;${tag}&gt;</td><td class="rm">${rmv}</td><td class="add">${adv}</td></tr>`;
-    }).join('');
-
-    const steps = [
-      {t:'Localize o bloco <dest> no arquivo', s:'Use o texto do painel vermelho acima para achar e apagar o trecho exato no seu editor ou no XML gerado pelo ERP.'},
-      {t:'Cole o novo bloco no lugar', s:'Insira o conteúdo do painel verde exatamente onde o <dest> antigo estava, mantendo a posição dentro de <infNFe>.'},
-      hasSignature ? {t:'Remova o bloco <Signature> inteiro', s:'Ele foi calculado sobre o conteúdo antigo e fica inválido após a edição — sem removê-lo, o XML parece assinado mas falha na validação.'} : null,
-      {t:'Reassine e reemita pelo Agrosys', s:'Esse texto editado não é transmissível sozinho — processe de novo pelo sistema com o certificado A1 para gerar a assinatura correta.'},
-      {t:'Confirme antes de transmitir', s:`O documento do <dest> deve ficar igual a ${maskCNPJ(dec.cnpjEmit)} — confira no XML final antes de enviar à SEFAZ.`},
-    ].filter(Boolean);
-
-    els.stepsList.innerHTML = steps.map(st => `
-      <li><div class="step-text"><strong>${st.t}</strong><span>${st.s}</span></div></li>
-    `).join('');
-  }
-
-  function newLeavesToXml(leaves){
-    // group address-ish fields under enderDest, matching typical NFe dest structure
-    const addrTags = new Set(['xLgr','nro','xCpl','xBairro','cMun','xMun','UF','CEP','cPais','xPais','fone']);
-    let out = '';
-    let inAddr = false;
-    leaves.forEach(l => {
-      if (addrTags.has(l.tag) && !inAddr){ out += '<enderDest>'; inAddr = true; }
-      if (!addrTags.has(l.tag) && inAddr){ out += '</enderDest>'; inAddr = false; }
-      out += leafToLine(l);
+    const fixes = dfeMatches.map(block => {
+      const chaveMatch = block.match(/<chaveAcesso>\s*(\d+)\s*<\/chaveAcesso>/);
+      const nItemMatch = block.match(/<nItem>\s*(\d+)\s*<\/nItem>/);
+      return {
+        removeText: block,
+        chave: chaveMatch ? onlyDigits(chaveMatch[1]) : '',
+        nItem: nItemMatch ? nItemMatch[1] : null
+      };
     });
-    if (inAddr) out += '</enderDest>';
-    return out;
+
+    const chaveInvalida = fixes.find(f => f.chave.length !== 44);
+    if (chaveInvalida){
+      showError('Encontrei um <DFeReferenciado> com <chaveAcesso> que não tem 44 dígitos válidos. Confira o XML colado.');
+      return;
+    }
+
+    let correctedXml = raw;
+    fixes.forEach(fix => {
+      correctedXml = correctedXml.replace(fix.removeText, '');
+    });
+
+    const seen = new Set();
+    const uniqueChaves = [];
+    fixes.forEach(f => { if (!seen.has(f.chave)){ seen.add(f.chave); uniqueChaves.push(f.chave); } });
+
+    const nfRefBlock = uniqueChaves.map(chave => `<NFref><refNFe>${chave}</refNFe></NFref>`).join('');
+    correctedXml = correctedXml.replace(/<\/ide>/, nfRefBlock + '</ide>');
+    correctedXml = correctedXml.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n');
+
+    render({ fixes, correctedXml, uniqueChaves, nfRefBlock, alreadyOk: false });
+    openResults();
   }
 
-  els.btnAnalisar.addEventListener('click', analisar);
-  els.btnLimpar.addEventListener('click', () => {
-    els.xmlDevolucao.value = '';
-    els.xmlReferenciada.value = '';
-    clearError();
-    els.results.style.display = 'none';
-  });
-  els.btnCopyRemove.addEventListener('click', () => {
-    navigator.clipboard.writeText(els.removeBox.textContent).then(() => flashBtn(els.btnCopyRemove));
-  });
-  els.btnCopyAdd.addEventListener('click', () => {
-    navigator.clipboard.writeText(els.addBox.textContent).then(() => flashBtn(els.btnCopyAdd));
-  });
-  function flashBtn(btn){
-    const original = btn.textContent;
-    btn.textContent = 'Copiado!';
-    setTimeout(() => btn.textContent = original, 1500);
+  function render({ fixes, correctedXml, uniqueChaves, nfRefBlock, alreadyOk }){
+    const hasFixes = fixes && fixes.length > 0;
+
+    els.verdictBox.className = 'verdict reveal ' + (hasFixes ? 'bad' : 'ok');
+    els.verdictMark.textContent = hasFixes ? '✕' : '✓';
+
+    if (!hasFixes){
+      els.verdictTitle.textContent = alreadyOk
+        ? 'Referência já está no formato correto'
+        : 'Nenhuma referência de nota encontrada';
+      els.verdictSub.textContent = alreadyOk
+        ? 'O XML já usa <NFref><refNFe> dentro de <ide>. Não há <DFeReferenciado> para corrigir. Se a rejeição persistir, o problema está em outro campo.'
+        : 'Não encontrei nem <DFeReferenciado> nem <NFref> nesse XML. Se a rejeição menciona nota referenciada, confira se colou o arquivo completo.';
+      els.diffPanel.style.display = 'none';
+      els.fullXmlPanel.style.display = 'none';
+      els.resultGrid.classList.remove('has-both');
+      copyPayload = { removed: '', added: '', full: '' };
+      els.stepsList.innerHTML = `<li><div class="step-text"><strong>Nada a corrigir</strong><span>Revise os demais campos citados na rejeição, se houver.</span></div></li>`;
+      return;
+    }
+
+    const itemsTxt = fixes.map(f => f.nItem ? `nItem ${f.nItem}` : null).filter(Boolean).join(', ');
+    els.verdictTitle.textContent = `Formato desatualizado — ${fixes.length} referência(s) para mover`;
+    els.verdictSub.textContent = `O XML referencia a(s) nota(s) usando <DFeReferenciado> dentro de <det>${itemsTxt ? ' (' + itemsTxt + ')' : ''}. Esse formato por item não é aceito pela SEFAZ — a referência precisa estar em <NFref><refNFe> dentro de <ide>.`;
+
+    els.diffPanel.style.display = '';
+    els.fullXmlPanel.style.display = '';
+    els.resultGrid.classList.add('has-both');
+    els.diffCounts.textContent = `−${fixes.length}  +${uniqueChaves.length}`;
+
+    let diffHtml = '';
+    let delay = 0;
+    fixes.forEach(fix => {
+      diffHtml += `<div class="diff-line rm" style="animation-delay:${delay}ms"><span class="gutter">−</span><span>${esc(fix.removeText)}</span></div>`;
+      delay += 40;
+    });
+    diffHtml += `<div class="diff-line note" style="animation-delay:${delay}ms">↳ removido(s) de dentro de &lt;det&gt; e reinserido(s) dentro de &lt;ide&gt;, um por chave única:</div>`;
+    delay += 40;
+    uniqueChaves.forEach(chave => {
+      diffHtml += `<div class="diff-line add" style="animation-delay:${delay}ms"><span class="gutter">+</span><span>${esc('<NFref><refNFe>' + chave + '</refNFe></NFref>')}</span></div>`;
+      delay += 40;
+    });
+    els.diffBody.innerHTML = diffHtml;
+
+    els.fullXmlBox.textContent = correctedXml;
+    els.fullXmlHint.textContent = 'Já com a referência movida para dentro de <ide> — copie e cole no lugar do arquivo original.';
+
+    copyPayload = {
+      removed: fixes.map(f => f.removeText).join('\n'),
+      added: uniqueChaves.map(chave => `<NFref><refNFe>${chave}</refNFe></NFref>`).join('\n'),
+      full: correctedXml
+    };
+
+    els.stepsList.innerHTML = [
+      {t:'Substitua o XML pelo corrigido', s:'Copie o XML completo do painel acima e salve no lugar do arquivo original (mesmo nome, extensão .xml).'},
+      {t:'Reenvie a nota', s:'No Explorador do Windows, digite \\\\192.168.102.50 — abra a pasta integracao, escolha a pasta da filial e depois a pasta processar. Cole o XML corrigido dentro de processar.'},
+      {t:'Confira no eDocs', s:'Depois de colar o arquivo, busque a nota no eDocs para confirmar o reenvio.'},
+    ].map(st => `<li><div class="step-text"><strong>${st.t}</strong><span>${st.s}</span></div></li>`).join('');
   }
+
+  function runWithPulse(){
+    if (els.btnAnalisar.disabled) return;
+    els.btnAnalisar.disabled = true;
+    els.btnAnalisar.classList.add('is-busy');
+    setTimeout(() => {
+      try { analisar(); }
+      finally {
+        els.btnAnalisar.disabled = false;
+        els.btnAnalisar.classList.remove('is-busy');
+      }
+    }, processDelay);
+  }
+
+  els.btnAnalisar.addEventListener('click', runWithPulse);
+  els.xmlInput.addEventListener('input', updateMeta);
+  els.xmlInput.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){
+      e.preventDefault();
+      runWithPulse();
+    }
+  });
+
+  els.btnLimpar.addEventListener('click', () => {
+    els.xmlInput.value = '';
+    updateMeta();
+    clearError();
+    hideResults();
+    copyPayload = { removed: '', added: '', full: '' };
+    els.xmlInput.classList.remove('flash-clear');
+    void els.xmlInput.offsetWidth;
+    els.xmlInput.classList.add('flash-clear');
+    showToast('Campos limpos');
+    els.xmlInput.focus();
+  });
+
+  els.btnCopyFullXml.addEventListener('click', () => copyText(copyPayload.full, els.btnCopyFullXml));
+  els.btnCopyRemoved.addEventListener('click', () => copyText(copyPayload.removed, els.btnCopyRemoved));
+  els.btnCopyAdded.addEventListener('click', () => copyText(copyPayload.added, els.btnCopyAdded));
+
+  updateMeta();
 })();
 </script>
-
 </body>
 </html>
